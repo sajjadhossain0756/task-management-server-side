@@ -56,7 +56,6 @@ async function run() {
   const usersCollection = database.collection("all_users");
 
   try {
-    //   <------------------user api start here---------->
     // insert a user to database
     app.post('/all_users', async (req, res) => {
       const userData = req.body;
@@ -67,6 +66,14 @@ async function run() {
         return res.send({ message: 'user already exists', insertedId: null })
       }
       const result = await usersCollection.insertOne(userData)
+      res.send(result)
+    })
+
+    // insert a task to database
+    app.post('/all_tasks', async (req, res) => {
+      const taskData = req.body;
+
+      const result = await allTasksCollection.insertOne(taskData)
       res.send(result)
     })
 
