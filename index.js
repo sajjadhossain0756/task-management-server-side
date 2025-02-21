@@ -90,6 +90,26 @@ async function run() {
       res.send(result)
     })
 
+    // update article info
+    app.put('/all_tasks/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateItem = req.body;
+
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateTask = {
+        $set: {
+          title: updateItem.title,
+          category: updateItem.category,
+          description: updateItem.description,
+          date: updateItem.date
+        },
+      };
+      const result = await allTasksCollection.updateOne(filter, updateTask, options);
+      res.send(result)
+
+    })
+
     // delete a task from db
     app.delete('/all_tasks/:id', async (req, res) => {
       const id = req.params.id
