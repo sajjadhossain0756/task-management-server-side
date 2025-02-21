@@ -10,7 +10,11 @@ const port = process.env.PORT || 9000
 const app = express()
 // middleware
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: [
+    'https://task-management-project-513fb.web.app',
+    'https://task-management-project-513fb.firebaseapp.com',
+    'http://localhost:5173',
+  ],
   credentials: true,
   optionSuccessStatus: 200,
 }
@@ -26,7 +30,7 @@ const verifyToken = async (req, res, next) => {
   if (!token) {
     return res.status(401).send({ message: 'unauthorized access' })
   }
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
     if (err) {
       console.log(err)
       return res.status(401).send({ message: 'unauthorized access' })
@@ -47,11 +51,29 @@ const client = new MongoClient(uri, {
   },
 })
 async function run() {
+  const database = client.db("Task_Management");
+  const allTasksCollection = database.collection("all_tasks");
+  const usersCollection = database.collection("all_users");
+
   try {
+    //   <------------------user api start here---------->
+    // insert a user to database
+    app.post('/all_users', async (req, res) => {
+      const userData = req.body;
+      // insert email if user doesn't exist
+      const query = { email: userData.email }
+      const existingUser = await usersCollection.findOne(query)
+      if (existingUser) {
+        return res.send({ message: 'user already exists', insertedId: null })
+      }
+      const result = await usersCollection.insertOne(userData)
+      res.send(result)
+    })
+
     // Generate jwt token
     app.post('/jwt', async (req, res) => {
       const email = req.body
-      const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
+      const token = jwt.sign(email, process.env.ACCESS_TOKEN, {
         expiresIn: '365d',
       })
       res
@@ -80,7 +102,7 @@ async function run() {
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
-      'Pinged your deployment. You successfully connected to MongoDB!'
+      'Pinged your eployment. You successfully connected to MongoDB!'
     )
   } finally {
     // Ensures that the client will close when you finish/error
