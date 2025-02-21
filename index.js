@@ -74,11 +74,28 @@ async function run() {
       res.send(result)
     })
 
+    // get one-tasks by id from database
+    app.get('/all_tasks/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const result = await allTasksCollection.findOne(filter)
+      res.send(result)
+    })
+
     // insert a task to database
     app.post('/all_tasks', async (req, res) => {
       const taskData = req.body;
 
       const result = await allTasksCollection.insertOne(taskData)
+      res.send(result)
+    })
+
+    // delete a task from db
+    app.delete('/all_tasks/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+
+      const result = await allTasksCollection.deleteOne(query)
       res.send(result)
     })
 
