@@ -68,6 +68,11 @@ async function run() {
       const result = await usersCollection.insertOne(userData)
       res.send(result)
     })
+    // get all-tasks from database
+    app.get('/all_tasks', async (req, res) => {
+      const result = await allTasksCollection.find().toArray()
+      res.send(result)
+    })
 
     // insert a task to database
     app.post('/all_tasks', async (req, res) => {
